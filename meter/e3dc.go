@@ -106,45 +106,49 @@ func NewE3dc(cfg rscp.ClientConfig, usage templates.Usage, dischargeLimit uint32
 }
 
 func (m *E3dc) CurrentPower() (float64, error) {
-	switch m.usage {
-	case templates.UsageGrid:
-		res, err := m.conn.Send(*rscp.NewMessage(rscp.EMS_REQ_POWER_GRID, nil))
-		if err != nil {
-			return 0, err
-		}
-		return rscpValue(*res, cast.ToFloat64E)
+    switch m.usage {
+    case templates.UsageGrid:
+        res, err := m.conn.Send(*rscp.NewMessage(rscp.EMS_REQ_POWER_GRID, nil))
+        if err != nil {
+            return 0, err
+        }
+        return rscpValue(*res, cast.ToFloat64E)
 
-	case templates.UsagePV:
-		res, err := m.conn.SendMultiple([]rscp.Message{
-			*rscp.NewMessage(rscp.EMS_REQ_POWER_PV, nil),
-			*rscp.NewMessage(rscp.EMS_REQ_POWER_ADD, nil),
-		})
-		if err != nil {
-			return 0, err
-		}
+    case templates.UsagePV:
+        resPV, err := m.conn.Send(*rscp.NewMessage(rscp.EMS_REQ_POWER_PV, nil))
+        if err != nil {
+            return 0, err
+        }
+        pwrPV, err := rscpValue(*resPV, cast.ToFloat64E)
+        if err != nil {
+            return 0, err
+        }
 
-		values, err := rscpValues(res, cast.ToFloat64E)
-		if err != nil {
-			return 0, err
-		}
+        resAdd, err := m.conn.Send(*rscp.NewMessage(rscp.EMS_REQ_POWER_ADD, nil))
+        if err != nil {
+            return 0, err
+        }
+        pwrAdd, err := rscpValue(*resAdd, cast.ToFloat64E)
+        if err != nil {
+            return 0, err
+        }
 
-		return lo.Sum(values), nil
+        return pwrPV + pwrAdd, nil // Combine both power values
 
-	case templates.UsageBattery:
-		res, err := m.conn.Send(*rscp.NewMessage(rscp.EMS_REQ_POWER_BAT, nil))
-		if err != nil {
-			return 0, err
-		}
-		pwr, err := rscpValue(*res, cast.ToFloat64E)
-		if err != nil {
-			return 0, err
-		}
+    case templates.UsageBattery:
+        res, err := m.conn.Send(*rscp.NewMessage(rscp.EMS_REQ_POWER_BAT, nil))
+        if err != nil {
+            return 0, err
+        }
+        pwr, err := rscpValue(*res, cast.ToFloat64E)
+        if err != nil {
+            return 0, err
+        }
+        return -pwr, nil
 
-		return -pwr, nil
-
-	default:
-		return 0, api.ErrNotAvailable
-	}
+    default:
+        return 0, api.ErrNotAvailable
+    }
 }
 
 func (m *E3dc) batterySoc() (float64, error) {
