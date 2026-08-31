@@ -2,6 +2,7 @@ package db
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"fmt"
 	"os"
@@ -11,6 +12,7 @@ import (
 	"github.com/evcc-io/evcc/util"
 	"github.com/libtnb/sqlite"
 	"github.com/mitchellh/go-homedir"
+	libsql "github.com/tursodatabase/libsql-client-go/libsql"
 	"gorm.io/gorm"
 	sqlite3 "modernc.org/sqlite"
 	sqlite3lib "modernc.org/sqlite/lib"
@@ -26,6 +28,10 @@ func FilePath() string {
 }
 
 func New(driver, dsn string) (*gorm.DB, error) {
+	return NewWithToken(driver, dsn, "")
+}
+
+func NewWithToken(driver, dsn, token string) (*gorm.DB, error) {
 	var dialect gorm.Dialector
 
 	switch driver {
@@ -65,12 +71,25 @@ func New(driver, dsn string) (*gorm.DB, error) {
 		util.NewLogger("main").INFO.Println("using sqlite database:", connectionStr)
 
 		dialect = sqlite.Open(connectionStr)
-	// case "postgres":
-	// 	dialect = postgres.Open(dsn)
-	// case "mysql":
-	// 	dialect = mysql.Open(dsn)
+
+	case "turso":
+		opts := []libsql.Option{}
+		if token != "" {
+			opts = append(opts, libsql.WithAuthToken(token))
+		}
+
+		connector, err := libsql.NewConnector(dsn, opts...)
+		if err != nil {
+			return nil, fmt.Errorf("turso: %w", err)
+		}
+
+		sqlDB := sql.OpenDB(connector)
+		dialect = sqlite.New(sqlite.Config{Conn: sqlDB})
+
+		util.NewLogger("main").INFO.Println("using turso database:", dsn)
+
 	default:
-		return nil, fmt.Errorf("invalid database type: %s not in [sqlite]", driver)
+		return nil, fmt.Errorf("invalid database type: %s not in [sqlite, turso]", driver)
 	}
 
 	db, err := gorm.Open(dialect, &gorm.Config{
@@ -90,7 +109,11 @@ func New(driver, dsn string) (*gorm.DB, error) {
 }
 
 func NewInstance(driver, dsn string) error {
-	db, err := New(strings.ToLower(driver), dsn)
+	return NewInstanceWithToken(driver, dsn, "")
+}
+
+func NewInstanceWithToken(driver, dsn, token string) error {
+	db, err := NewWithToken(strings.ToLower(driver), dsn, token)
 	if err != nil {
 		return err
 	}

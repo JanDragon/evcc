@@ -144,8 +144,9 @@ func (c Influx) Redacted() any {
 }
 
 type DB struct {
-	Type string
-	Dsn  string
+	Type  string
+	Dsn   string
+	Token string // auth token for Turso remote databases
 }
 
 type Messaging struct {

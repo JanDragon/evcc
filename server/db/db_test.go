@@ -45,6 +45,18 @@ func TestUnitNewDriver(t *testing.T) {
 			dsn:     "/var/lib/evcc/evcc.db",
 			wantErr: true,
 		},
+		{
+			name:    "Turso local file",
+			driver:  "turso",
+			dsn:     "file://" + tmpDir + "/turso.db",
+			wantErr: false,
+		},
+		{
+			name:    "Turso invalid DSN",
+			driver:  "turso",
+			dsn:     "://badurl",
+			wantErr: true,
+		},
 	}
 
 	for _, test := range tests {

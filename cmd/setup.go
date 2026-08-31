@@ -719,7 +719,7 @@ func configureDatabase(conf globalconfig.DB) error {
 		conf.Dsn = userDB
 	}
 
-	if err := db.NewInstance(conf.Type, conf.Dsn); err != nil {
+	if err := db.NewInstanceWithToken(conf.Type, conf.Dsn, conf.Token); err != nil {
 		return err
 	}
 
