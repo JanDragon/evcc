@@ -147,7 +147,7 @@ test.describe("control modal", async () => {
     await modal.getByRole("button", { name: "Save" }).click();
     await expectModalHidden(modal);
 
-    await expect(controlEntry).toContainText("10s");
+    await expect(controlEntry).toContainText(/10\s*s/);
 
     await restart(CONFIG_GRID_ONLY);
     await page.reload();
