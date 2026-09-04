@@ -366,6 +366,7 @@ func (s *HTTPd) RegisterSystemHandler(site *core.Site, pub publisher, cache *uti
 			keys.Hems:      func() (any, any) { return map[string]any{}, config.Typed{} },
 			keys.Tariffs:   func() (any, any) { return map[string]any{}, globalconfig.Tariffs{} },
 			keys.Messaging: func() (any, any) { return map[string]any{}, globalconfig.Messaging{} }, // has default
+			keys.Levels:    func() (any, any) { return map[string]any{}, map[string]string{} },
 			keys.Circuits:  func() (any, any) { return []map[string]any{}, []config.Named{} },       // slice
 		} {
 			other, struc := fun()
@@ -373,6 +374,10 @@ func (s *HTTPd) RegisterSystemHandler(site *core.Site, pub publisher, cache *uti
 			routes["update"+key] = route{Method: "POST", Pattern: "/" + key, HandlerFunc: settingsSetYamlHandler(key, other, struc, auth)}
 			routes["delete"+key] = route{Method: "DELETE", Pattern: "/" + key, HandlerFunc: settingsDeleteHandler(key)}
 		}
+
+		routes[keys.Plant] = route{Method: "GET", Pattern: "/" + keys.Plant, HandlerFunc: settingsGetStringHandler(keys.Plant)}
+		routes["update"+keys.Plant] = route{Method: "POST", Pattern: "/" + keys.Plant, HandlerFunc: settingsSetStringHandler(keys.Plant, pub)}
+		routes["delete"+keys.Plant] = route{Method: "DELETE", Pattern: "/" + keys.Plant, HandlerFunc: settingsDeleteHandler(keys.Plant)}
 
 		// json handlers
 		for key, fun := range map[string]func() any{

@@ -941,7 +941,11 @@
         },
         "title": "Backup & Restore"
       },
+      "logLevels": "Log levels",
+      "logLevelsDescription": "Configure per-area log levels in YAML format.",
       "logs": "Logs",
+      "plant": "Telemetry plant ID",
+      "plantDescription": "Override the telemetry plant identifier used for anonymized telemetry.",
       "restart": "Restart",
       "restartRequiredDescription": "Please restart to see the effect.",
       "restartRequiredMessage": "Configuration changed.",

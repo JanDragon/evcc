@@ -56,6 +56,23 @@ func settingsSetDurationHandler(key string, pub publisher) http.HandlerFunc {
 	}
 }
 
+func settingsSetStringHandler(key string, pub publisher) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		b, err := io.ReadAll(r.Body)
+		if err != nil {
+			jsonError(w, http.StatusBadRequest, err)
+			return
+		}
+
+		val := strings.TrimSpace(string(b))
+		settings.SetString(key, val)
+		setConfigDirty()
+		pub(key, val)
+
+		jsonWrite(w, val)
+	}
+}
+
 func settingsSetYamlHandler(key string, other, struc any, authObject auth.Auth) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		b, err := io.ReadAll(r.Body)

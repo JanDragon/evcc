@@ -507,6 +507,12 @@
 						>
 							{{ $t("config.system.backupRestore.title") }}
 						</button>
+						<button class="btn btn-outline-secondary" @click="openModal('levels')">
+							{{ $t("config.system.logLevels") }}
+						</button>
+						<button class="btn btn-outline-secondary" @click="openModal('plant')">
+							{{ $t("config.system.plant") }}
+						</button>
 						<button class="btn btn-outline-danger" @click="restart">
 							{{ $t("config.system.restart") }}
 						</button>
@@ -576,6 +582,8 @@
 				<ApiKeyModal :auth-disabled="authDisabled" />
 				<PasswordModal update-mode />
 				<SponsorModal :error="hasClassError('sponsorship')" @changed="loadDirty" />
+				<LevelsModal @changed="loadDirty" />
+				<PlantModal @changed="loadDirty" />
 			</div>
 		</div>
 	</div>
@@ -706,6 +714,8 @@ import PasswordModal from "../components/Auth/PasswordModal.vue";
 import SecurityModal from "../components/Config/Security/SecurityModal.vue";
 import ApiKeyModal from "../components/Config/Security/ApiKeyModal.vue";
 import AuthProvidersCard from "../components/Config/AuthProvidersCard.vue";
+import LevelsModal from "../components/Config/LevelsModal.vue";
+import PlantModal from "../components/Config/PlantModal.vue";
 
 export default defineComponent({
 	name: "Config",
@@ -770,6 +780,8 @@ export default defineComponent({
 		SecurityModal,
 		ApiKeyModal,
 		AuthProvidersCard,
+		LevelsModal,
+		PlantModal,
 	},
 	mixins: [formatter, collector, listDetail],
 	props: {

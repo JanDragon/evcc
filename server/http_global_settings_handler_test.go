@@ -40,3 +40,43 @@ func TestSettingsSetYamlHandlerCriticalPlugin(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, strings.TrimSpace(body), got)
 }
+
+func TestSettingsSetYamlHandlerLevels(t *testing.T) {
+	const key = "test_levels"
+	body := "site: debug\ncache: error\n"
+
+	h := settingsSetYamlHandler(key, map[string]any{}, map[string]string{}, fakeAuth{})
+	r := httptest.NewRequest(http.MethodPost, "/levels", strings.NewReader(body))
+	w := httptest.NewRecorder()
+	h(w, r)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+	got, err := settings.String(key)
+	assert.NoError(t, err)
+	assert.Equal(t, strings.TrimSpace(body), got)
+}
+
+func TestSettingsSetStringHandler(t *testing.T) {
+	const key = "test_plant"
+
+	var (
+		publishedKey string
+		publishedVal any
+	)
+	h := settingsSetStringHandler(key, func(key string, val any) {
+		publishedKey = key
+		publishedVal = val
+	})
+
+	r := httptest.NewRequest(http.MethodPost, "/plant", strings.NewReader("  foo-bar \n"))
+	w := httptest.NewRecorder()
+	h(w, r)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+
+	got, err := settings.String(key)
+	assert.NoError(t, err)
+	assert.Equal(t, "foo-bar", got)
+	assert.Equal(t, key, publishedKey)
+	assert.Equal(t, "foo-bar", publishedVal)
+}

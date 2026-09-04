@@ -941,7 +941,11 @@
         },
         "title": "Sichern & Wiederherstellen"
       },
+      "logLevels": "Log-Level",
+      "logLevelsDescription": "Konfiguriere Log-Level pro Bereich im YAML-Format.",
       "logs": "Logs",
+      "plant": "Telemetrie-Plant-ID",
+      "plantDescription": "Überschreibt die Telemetrie-Plant-Kennung für anonymisierte Telemetrie.",
       "restart": "Neu starten",
       "restartRequiredDescription": "Bitte neu starten, um die Änderungen zu übernehmen.",
       "restartRequiredMessage": "Konfiguration geändert.",
