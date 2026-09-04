@@ -76,6 +76,8 @@ type API interface {
 	//
 
 	GetGridPower() float64
+	GetVoltage() float64
+	SetVoltage(float64) error
 	GetResidualPower() float64
 	SetResidualPower(float64) error
 	GetGridExportLimit() float64

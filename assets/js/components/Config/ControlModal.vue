@@ -20,7 +20,7 @@
 				<div class="input-group input-width">
 					<input
 						id="controlInterval"
-						v-model="values.interval"
+						v-model.number="values.interval"
 						type="number"
 						step="1"
 						min="1"
@@ -29,6 +29,27 @@
 						class="form-control text-end"
 					/>
 					<span id="controlIntervalUnit" class="input-group-text">s</span>
+				</div>
+			</FormRow>
+
+			<FormRow
+				id="controlVoltage"
+				:label="$t('config.control.labelVoltage')"
+				:help="$t('config.control.descriptionVoltage')"
+				example="230 V"
+			>
+				<div class="input-group input-width">
+					<input
+						id="controlVoltage"
+						v-model.number="values.voltage"
+						type="number"
+						step="1"
+						min="1"
+						required
+						aria-describedby="controlVoltageUnit"
+						class="form-control text-end"
+					/>
+					<span id="controlVoltageUnit" class="input-group-text">V</span>
 				</div>
 			</FormRow>
 
@@ -42,7 +63,7 @@
 				<div class="input-group input-width">
 					<input
 						id="controlResidualPower"
-						v-model="values.residualPower"
+						v-model.number="values.residualPower"
 						type="number"
 						step="1"
 						required
@@ -105,27 +126,40 @@ export default {
 		residualPowerChanged() {
 			return this.values.residualPower !== this.serverValues.residualPower;
 		},
+		voltageChanged() {
+			return this.values.voltage !== this.serverValues.voltage;
+		},
 		nothingChanged() {
-			return !this.intervalChanged && !this.residualPowerChanged;
+			return !this.intervalChanged && !this.residualPowerChanged && !this.voltageChanged;
 		},
 	},
 	methods: {
 		reset() {
-			const { interval, residualPower } = store?.state || {};
 			this.saving = false;
 			this.error = "";
-			this.values = { interval, residualPower };
-			this.serverValues = { ...this.values };
+			this.values = {};
+			this.serverValues = {};
 		},
 		async open() {
 			this.reset();
+			const { interval } = store?.state || {};
+			const { data } = await api.get("/config/site");
+			const { residualPower, voltage } = data;
+			this.values = { interval, residualPower, voltage };
+			this.serverValues = { ...this.values };
 		},
 		async saveValue(name) {
 			let url = "";
 			if (name === "interval") {
 				url = `/config/interval/${encodeURIComponent(this.values.interval)}`;
 			} else if (name === "residualPower") {
-				url = `/residualpower/${encodeURIComponent(this.values.residualPower)}`;
+				url = "/config/site";
+			} else if (name === "voltage") {
+				url = "/config/site";
+			}
+			if (url === "/config/site") {
+				await api.put(url, { [name]: this.values[name] });
+				return;
 			}
 			await api.post(url);
 		},
@@ -135,6 +169,9 @@ export default {
 			try {
 				if (this.intervalChanged) {
 					await this.saveValue("interval");
+				}
+				if (this.voltageChanged) {
+					await this.saveValue("voltage");
 				}
 				if (this.residualPowerChanged) {
 					await this.saveValue("residualPower");

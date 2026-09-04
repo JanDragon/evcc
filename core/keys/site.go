@@ -32,6 +32,7 @@ const (
 	TariffSolar           = "tariffSolar"
 	TariffTemperature     = "tariffTemperature"
 	Vehicles              = "vehicles"
+	Voltage               = "voltage"
 
 	// meters
 	GridMeter      = "gridMeter"

@@ -421,6 +421,9 @@ func (site *Site) restoreMetersAndTitle() {
 	if v, err := settings.String(keys.Title); err == nil {
 		site.Title = v
 	}
+	if v, err := settings.Float(keys.Voltage); err == nil {
+		site.Voltage = v
+	}
 	if v, err := settings.String(keys.GridMeter); err == nil && v != "" {
 		site.Meters.GridMeterRef = v
 	}

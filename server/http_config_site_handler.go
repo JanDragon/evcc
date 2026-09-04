@@ -12,23 +12,27 @@ import (
 func siteHandler(site site.API) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		res := struct {
-			Title    string   `json:"title"`
-			Grid     string   `json:"grid"`
-			PV       []string `json:"pv"`
-			Battery  []string `json:"battery"`
-			Aux      []string `json:"aux"`
-			Ext      []string `json:"ext"`
-			Consumer []string `json:"consumer"`
-			Curtail  []string `json:"curtail"`
+			Title         string   `json:"title"`
+			Grid          string   `json:"grid"`
+			PV            []string `json:"pv"`
+			Battery       []string `json:"battery"`
+			Aux           []string `json:"aux"`
+			Ext           []string `json:"ext"`
+			Consumer      []string `json:"consumer"`
+			Curtail       []string `json:"curtail"`
+			Voltage       float64  `json:"voltage"`
+			ResidualPower float64  `json:"residualPower"`
 		}{
-			Title:    site.GetTitle(),
-			Grid:     site.GetGridMeterRef(),
-			Curtail:  site.GetCurtailerRefs(),
-			PV:       site.GetPVMeterRefs(),
-			Battery:  site.GetBatteryMeterRefs(),
-			Aux:      site.GetAuxMeterRefs(),
-			Ext:      site.GetExtMeterRefs(),
-			Consumer: site.GetConsumerMeterRefs(),
+			Title:         site.GetTitle(),
+			Grid:          site.GetGridMeterRef(),
+			Curtail:       site.GetCurtailerRefs(),
+			PV:            site.GetPVMeterRefs(),
+			Battery:       site.GetBatteryMeterRefs(),
+			Aux:           site.GetAuxMeterRefs(),
+			Ext:           site.GetExtMeterRefs(),
+			Consumer:      site.GetConsumerMeterRefs(),
+			Voltage:       site.GetVoltage(),
+			ResidualPower: site.GetResidualPower(),
 		}
 
 		jsonWrite(w, res)
@@ -49,14 +53,16 @@ func validateRefs(w http.ResponseWriter, refs []string) bool {
 func updateSiteHandler(site site.API) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var payload struct {
-			Title    *string
-			Grid     *string
-			PV       *[]string
-			Battery  *[]string
-			Aux      *[]string
-			Ext      *[]string
-			Consumer *[]string
-			Curtail  *[]string
+			Title         *string
+			Grid          *string
+			PV            *[]string
+			Battery       *[]string
+			Aux           *[]string
+			Ext           *[]string
+			Consumer      *[]string
+			Curtail       *[]string
+			Voltage       *float64
+			ResidualPower *float64
 		}
 
 		if err := jsonDecoder(r.Body).Decode(&payload); err != nil {
@@ -66,6 +72,20 @@ func updateSiteHandler(site site.API) http.HandlerFunc {
 
 		if payload.Title != nil {
 			site.SetTitle(*payload.Title)
+		}
+
+		if payload.Voltage != nil {
+			if err := site.SetVoltage(*payload.Voltage); err != nil {
+				jsonError(w, http.StatusBadRequest, err)
+				return
+			}
+		}
+
+		if payload.ResidualPower != nil {
+			if err := site.SetResidualPower(*payload.ResidualPower); err != nil {
+				jsonError(w, http.StatusBadRequest, err)
+				return
+			}
 		}
 
 		if payload.Grid != nil {

@@ -1420,6 +1420,8 @@ export interface SiteConfig {
   ext: string[] | null;
   consumer: string[] | null;
   curtail: string[] | null;
+  voltage: number;
+  residualPower: number;
 }
 
 export type ValueOf<T> = T[keyof T];

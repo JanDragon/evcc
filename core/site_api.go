@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"iter"
+	"math"
 	"slices"
 	"strings"
 	"time"
@@ -360,6 +361,33 @@ func (site *Site) GetGridPower() float64 {
 	site.RLock()
 	defer site.RUnlock()
 	return site.gridPower
+}
+
+// GetVoltage returns the configured operating voltage in V.
+func (site *Site) GetVoltage() float64 {
+	site.RLock()
+	defer site.RUnlock()
+	return site.Voltage
+}
+
+// SetVoltage sets the configured operating voltage in V.
+func (site *Site) SetVoltage(voltage float64) error {
+	if math.IsNaN(voltage) || math.IsInf(voltage, 0) || voltage <= 0 {
+		return errors.New("voltage must be greater than 0")
+	}
+
+	site.log.DEBUG.Println("set voltage:", voltage)
+
+	site.Lock()
+	defer site.Unlock()
+
+	if site.Voltage != voltage {
+		site.Voltage = voltage
+		Voltage = voltage
+		settings.SetFloat(keys.Voltage, site.Voltage)
+	}
+
+	return nil
 }
 
 // GetResidualPower returns the ResidualPower

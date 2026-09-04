@@ -804,6 +804,8 @@ export default defineComponent({
 				ext: null as string[] | null,
 				consumer: null as string[] | null,
 				curtail: null as string[] | null,
+				voltage: 230,
+				residualPower: 0,
 			} as SiteConfig,
 			deviceValueTimeout: null as Timeout,
 			deviceValues: {

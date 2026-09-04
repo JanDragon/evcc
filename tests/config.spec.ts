@@ -126,3 +126,36 @@ test.describe("network modal", async () => {
     await expectModalHidden(modal);
   });
 });
+
+test.describe("control modal", async () => {
+  test("persists operating voltage and residual power across restart", async ({ page }) => {
+    await page.goto("/#/config");
+
+    const controlEntry = page.getByTestId("generalconfig-control");
+    await expect(controlEntry).toBeVisible();
+    await controlEntry.getByRole("button", { name: "edit" }).click();
+
+    const modal = page.getByTestId("control-modal");
+    await expectModalVisible(modal);
+
+    await expect(modal.getByLabel("Operating voltage")).toHaveValue("230");
+    await expect(modal.getByLabel("Residual power")).toHaveValue("0");
+
+    await modal.getByLabel("Update interval").fill("10");
+    await modal.getByLabel("Operating voltage").fill("240");
+    await modal.getByLabel("Residual power").fill("150");
+    await modal.getByRole("button", { name: "Save" }).click();
+    await expectModalHidden(modal);
+
+    await expect(controlEntry).toContainText("10s");
+
+    await restart(CONFIG_GRID_ONLY);
+    await page.reload();
+
+    await controlEntry.getByRole("button", { name: "edit" }).click();
+    await expectModalVisible(modal);
+    await expect(modal.getByLabel("Update interval")).toHaveValue("10");
+    await expect(modal.getByLabel("Operating voltage")).toHaveValue("240");
+    await expect(modal.getByLabel("Residual power")).toHaveValue("150");
+  });
+});
