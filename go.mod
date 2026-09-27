@@ -61,7 +61,6 @@ require (
 	github.com/insomniacslk/tapo v1.1.0
 	github.com/itchyny/gojq v0.12.19
 	github.com/jarcoal/httpmock v1.4.2
-	github.com/jeremywohl/flatten v1.0.1
 	github.com/jinzhu/now v1.1.5
 	github.com/joeshaw/carwings v0.0.0-20250704173606-1708e349f36c
 	github.com/joho/godotenv v1.5.1

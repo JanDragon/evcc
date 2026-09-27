@@ -20,6 +20,7 @@ func TestHttpHandlerQueryFiltersResponses(t *testing.T) {
 	}{
 		{name: "match", body: `{"match":true}`, want: true},
 		{name: "no match", body: `{"other":true}`, want: false},
+		{name: "invalid json", body: `{"match":`, want: false},
 	}
 
 	for _, tc := range tests {
