@@ -16,7 +16,6 @@ type ResultDetails struct {
 type Result struct {
 	Task
 	ResultDetails
-	Attributes map[string]any // TODO remove, only used for post-processing
 }
 
 type TaskType string

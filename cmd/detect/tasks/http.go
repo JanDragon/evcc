@@ -19,10 +19,6 @@ func init() {
 	registry.Add(Http, HttpHandlerFactory)
 }
 
-type HttpResult struct {
-	Jq any
-}
-
 func HttpHandlerFactory(conf map[string]any) (TaskHandler, error) {
 	handler := HttpHandler{
 		Schema: "http",
@@ -105,7 +101,6 @@ func (h *HttpHandler) Test(log *util.Logger, in ResultDetails) []ResultDetails {
 		}
 	}
 
-	var res HttpResult
 	if h.query != nil {
 		body, err := io.ReadAll(resp.Body)
 		if err != nil {
@@ -113,7 +108,6 @@ func (h *HttpHandler) Test(log *util.Logger, in ResultDetails) []ResultDetails {
 		}
 
 		val, err := jq.Query(h.query, body)
-		res.Jq = val
 
 		if val == nil || err != nil {
 			return nil

@@ -2,13 +2,10 @@ package detect
 
 import (
 	"sort"
-	"strings"
 	"sync"
 
 	"github.com/evcc-io/evcc/cmd/detect/tasks"
 	"github.com/evcc-io/evcc/util"
-	"github.com/fatih/structs"
-	"github.com/jeremywohl/flatten"
 )
 
 func workers(log *util.Logger, num int, ips <-chan string, hits chan<- []tasks.Result) *sync.WaitGroup {
@@ -65,20 +62,6 @@ func Work(log *util.Logger, num int, hosts []string) []tasks.Result {
 }
 
 func postProcess(res []tasks.Result) []tasks.Result {
-	for idx, hit := range res {
-		// if sma, ok := hit.Details.(SmaResult); ok {
-		// 	hit.Host = sma.Addr
-		// }
-
-		hit.Attributes = make(map[string]any)
-		flat, _ := flatten.Flatten(structs.Map(hit), "", flatten.DotStyle)
-		for k, v := range flat {
-			hit.Attributes[strings.ToLower(k)] = v
-		}
-
-		res[idx] = hit
-	}
-
 	// sort by host
 	sort.Slice(res, func(i, j int) bool {
 		if res[i].ResultDetails.IP == res[j].ResultDetails.IP {
